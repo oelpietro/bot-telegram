@@ -5,7 +5,7 @@ const mysql = require("mysql2/promise");
 
 const BOT_TOKEN = process.env.BOT_TOKEN; 
 const SEND_INTERVAL_MS = 1100;
-const CYCLE_INTERVAL_MS = 28800000;
+const CYCLE_INTERVAL_MS = 60000;
 
 const bot = new Telegraf(BOT_TOKEN);
 
