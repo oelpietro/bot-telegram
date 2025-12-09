@@ -58,6 +58,50 @@ bot.start(async (ctx) => {
     ])
   );
 });
+// ---------- BANIR CHAT MANUALMENTE (ADM) ----------
+// Uso: /banchat <chat_id>
+bot.command("banchat", async (ctx) => {
+  const userId = ctx.from.id;
+
+  // Lista dos administradores permitidos
+  const ADMINS = [8420557601]; // coloque SEUS IDs aqui
+
+  // Verificar permissão
+  if (!ADMINS.includes(userId)) {
+    return ctx.reply("❌ Você não tem permissão para usar este comando.");
+  }
+
+  // Pegar argumento: ID do chat
+  const args = ctx.message.text.split(" ");
+  if (args.length < 2) {
+    return ctx.reply("⚠️ Uso correto: /banchat <chat_id>");
+  }
+
+  const chatId = args[1];
+
+  try {
+    // Envia aviso ao grupo/canal banido
+    await bot.telegram.sendMessage(
+      chatId,
+      "🚫 *Este chat violou as regras do sistema.*\n\nO bot será removido agora.",
+      { parse_mode: "Markdown" }
+    );
+
+    // Remover da tabela
+    await db.query("DELETE FROM chats WHERE id = ?", [chatId]);
+
+    // Fazer o bot sair
+    await bot.telegram.leaveChat(chatId);
+
+    // Confirmar para o ADM
+    await ctx.reply(`✔ Chat ${chatId} banido e removido com sucesso.`);
+
+    console.log("BANIDO:", chatId);
+  } catch (err) {
+    console.log("Erro no /banchat:", err);
+    await ctx.reply("❌ Erro ao banir. Talvez o bot não tenha acesso ao chat ou o ID esteja errado.");
+  }
+});
 
 // ---------- my_chat_member (add/remove) ----------
 bot.on("my_chat_member", async (ctx) => {
