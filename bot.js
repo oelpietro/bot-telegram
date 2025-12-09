@@ -49,7 +49,7 @@ bot.start(async (ctx) => {
   await ctx.replyWithMarkdown(
     "✨ Destaque seu canal!\n\n" +
     "Adicione seu canal ou grupo à nossa lista e ganhe mais visibilidade!\n\n" +
-    "🟢 Para participar seu canal/grupo precisa apenas de:\n" +
+    "🟢 Para participar seu canal/grupo precisa de:\n\n" +
     "✅ Ter usuários ativos\n" +
     "✅ Histórico de mensagens visível\n" +
     "✅ Bot com permissões de administrador\n\n" +
