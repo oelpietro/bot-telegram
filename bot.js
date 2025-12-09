@@ -5,7 +5,7 @@ const mysql = require("mysql2/promise");
 
 const BOT_TOKEN = process.env.BOT_TOKEN; 
 const SEND_INTERVAL_MS = 1100;
-const CYCLE_INTERVAL_MS = 21600000;
+const CYCLE_INTERVAL_MS = 28800000;
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -47,8 +47,12 @@ function linkParaChat(g) {
 // ---------- START & comandos ----------
 bot.start(async (ctx) => {
   await ctx.replyWithMarkdown(
- ✨ *Destaque seu canal!*\n\n" + 
+    "✨ Destaque seu canal!\n\n" +
     "Adicione seu canal ou grupo à nossa lista e ganhe mais visibilidade!\n\n" +
+    "🟢 Para participar seu canal/grupo precisa apenas de:\n" +
+    "✅ Ter usuários ativos\n" +
+    "✅ Histórico de mensagens visível\n" +
+    "✅ Bot com permissões de administrador\n\n" +
     "➡️ Adicione nosso bot e participe da parceria!",
     Markup.inlineKeyboard([
       [Markup.button.url("🔵 Adicionar Grupo", "https://t.me/divulgadorlistabot?startgroup&admin=post_messages+delete_messages+edit_messages+invite_users+pin_messages")],
@@ -252,8 +256,8 @@ async function montarCicloEAtualizarFila() {
       // montar botões: 3 fixos + selecionados + final
       const botoes = [
         [Markup.button.url("𝐕𝟒𝐙𝐀𝐃𝐈𝐍𝐇𝟒𝑺 🔞", "https://t.me/+XIMONj_eoGsyMzRh")],
-        [Markup.button.url("DARK LINKS", "https://t.me/D4rkLINKSbot")],
-        [Markup.button.url("ONLY DAS FAMOSAS", "https://t.me/onlydasfamosabot")]
+        [Markup.button.url("ONLY DAS FAMOSAS", "https://t.me/onlydasfamosabot")],
+        [Markup.button.url("D4RK LINKS", "https://t.me/D4rkLINKSbot")]
       ];
 
       selecionados.forEach(g => botoes.push([Markup.button.url(g.titulo || "Grupo", linkParaChat(g))]));
