@@ -256,8 +256,8 @@ async function montarCicloEAtualizarFila() {
       // montar botões: 3 fixos + selecionados + final
       const botoes = [
         [Markup.button.url("𝐕𝟒𝐙𝐀𝐃𝐈𝐍𝐇𝟒𝑺 🔞", "https://t.me/+XIMONj_eoGsyMzRh")],
-        [Markup.button.url("ONLY DAS FAMOSAS", "https://t.me/onlydasfamosabot")],
-        [Markup.button.url("D4RK LINKS", "https://t.me/D4rkLINKSbot")]
+        [Markup.button.url("ONLY DAS FAMOSAS", "https://t.me/onlydasfamosabot?start=start")],
+        [Markup.button.url("D4RK LINKS", "https://t.me/D4rkLINKSbot?start=start")]
       ];
 
       selecionados.forEach(g => botoes.push([Markup.button.url(g.titulo || "Grupo", linkParaChat(g))]));
