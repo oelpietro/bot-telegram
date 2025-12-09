@@ -47,14 +47,9 @@ function linkParaChat(g) {
 // ---------- START & comandos ----------
 bot.start(async (ctx) => {
   await ctx.replyWithMarkdown(
-    "✨ Destaque seu canal!\n\n" +
+ ✨ *Destaque seu canal!*\n\n" + 
     "Adicione seu canal ou grupo à nossa lista e ganhe mais visibilidade!\n\n" +
-    "🟢 Para participar seu canal/grupo precisa apenas de:\n" +
-    "✅ Ter usuários ativos\n" +
-    "✅ Histórico de mensagens visível\n" +
-    "✅ Bot com permissões de administrador\n\n" +
-    "➡️ Adicione nosso bot e participe da parceria!";
-  
+    "➡️ Adicione nosso bot e participe da parceria!",
     Markup.inlineKeyboard([
       [Markup.button.url("🔵 Adicionar Grupo", "https://t.me/divulgadorlistabot?startgroup&admin=post_messages+delete_messages+edit_messages+invite_users+pin_messages")],
       [Markup.button.url("🟢 Adicionar Canal", "https://t.me/divulgadorlistabot?startchannel&admin=post_messages+delete_messages+edit_messages+invite_users+pin_messages")],
