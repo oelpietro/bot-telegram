@@ -54,6 +54,7 @@ bot.start(async (ctx) => {
     "✅ Histórico de mensagens visível\n" +
     "✅ Bot com permissões de administrador\n\n" +
     "➡️ Adicione nosso bot e participe da parceria!";
+  
     Markup.inlineKeyboard([
       [Markup.button.url("🔵 Adicionar Grupo", "https://t.me/divulgadorlistabot?startgroup&admin=post_messages+delete_messages+edit_messages+invite_users+pin_messages")],
       [Markup.button.url("🟢 Adicionar Canal", "https://t.me/divulgadorlistabot?startchannel&admin=post_messages+delete_messages+edit_messages+invite_users+pin_messages")],
