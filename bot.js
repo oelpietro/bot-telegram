@@ -335,14 +335,6 @@ async function processarFila() {
   processing = false;
 }
 
-
-    // delay entre envios para evitar flood
-    await sleep(SEND_INTERVAL_MS);
-  }
-
-  processing = false;
-}
-
 // Agendadores:
 // 1) A cada CYCLE_INTERVAL_MS monta um novo ciclo/popula a fila
 setInterval(async () => {
