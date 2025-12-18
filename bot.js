@@ -292,36 +292,49 @@ async function processarFila() {
     const item = fila.shift();
     const { targetChat, texto, inline_keyboard } = item;
 
-  const msg = await bot.telegram.sendMessage(targetChat.id, texto, {
-  parse_mode: "Markdown",
-  reply_markup: { inline_keyboard }
-});
-
-// FIXAR A MENSAGEM
-try {
-  await bot.telegram.pinChatMessage(targetChat.id, msg.message_id, {
-    disable_notification: true
-  });
-  console.log("📌 Mensagem fixada em:", targetChat.titulo || targetChat.id);
-} catch (e) {
-  console.log("⚠️ Não foi possível fixar:", targetChat.titulo || targetChat.id);
-}
-
+    try {
+      // ENVIAR MENSAGEM
+      const msg = await bot.telegram.sendMessage(targetChat.id, texto, {
+        parse_mode: "Markdown",
+        reply_markup: { inline_keyboard }
       });
+
       console.log("✔ Enviado para:", targetChat.titulo || targetChat.id);
+
+      // FIXAR MENSAGEM
+      try {
+        await bot.telegram.pinChatMessage(targetChat.id, msg.message_id, {
+          disable_notification: true
+        });
+        console.log("📌 Mensagem fixada em:", targetChat.titulo || targetChat.id);
+      } catch (e) {
+        console.log("⚠️ Não foi possível fixar:", targetChat.titulo || targetChat.id);
+      }
+
     } catch (e) {
-      // Se Telegram retornar flood-wait
-      if (e && e.parameters && e.parameters.retry_after) {
+      // FLOOD WAIT
+      if (e?.parameters?.retry_after) {
         const wait = e.parameters.retry_after * 1000;
-        console.log(`⏳ FLOOD-WAIT detectado: pausando por ${wait / 1000}s`);
-        // colocar o item de volta no início
+        console.log(`⏳ FLOOD-WAIT: aguardando ${wait / 1000}s`);
         fila.unshift(item);
         await sleep(wait + 500);
         continue;
       } else {
-        console.log("❌ Erro ao enviar para", targetChat.titulo || targetChat.id, e.message || e);
+        console.log(
+          "❌ Erro ao enviar para",
+          targetChat.titulo || targetChat.id,
+          e.message || e
+        );
       }
     }
+
+    // DELAY ENTRE ENVIOS
+    await sleep(SEND_INTERVAL_MS);
+  }
+
+  processing = false;
+}
+
 
     // delay entre envios para evitar flood
     await sleep(SEND_INTERVAL_MS);
