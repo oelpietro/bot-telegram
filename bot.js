@@ -292,10 +292,21 @@ async function processarFila() {
     const item = fila.shift();
     const { targetChat, texto, inline_keyboard } = item;
 
-    try {
-      await bot.telegram.sendMessage(targetChat.id, texto, {
-        parse_mode: "Markdown",
-        reply_markup: { inline_keyboard }
+  const msg = await bot.telegram.sendMessage(targetChat.id, texto, {
+  parse_mode: "Markdown",
+  reply_markup: { inline_keyboard }
+});
+
+// FIXAR A MENSAGEM
+try {
+  await bot.telegram.pinChatMessage(targetChat.id, msg.message_id, {
+    disable_notification: true
+  });
+  console.log("📌 Mensagem fixada em:", targetChat.titulo || targetChat.id);
+} catch (e) {
+  console.log("⚠️ Não foi possível fixar:", targetChat.titulo || targetChat.id);
+}
+
       });
       console.log("✔ Enviado para:", targetChat.titulo || targetChat.id);
     } catch (e) {
