@@ -27,6 +27,21 @@ async function contarDoUsuario(userId) {
   return rows[0].total;
 }
 
+function linkParaChat(chat) {
+  // prioridade 1: invite_link salvo
+  if (chat.invite_link) return chat.invite_link;
+
+  // prioridade 2: username público
+  if (chat.username) return `https://t.me/${chat.username}`;
+
+  // fallback (grupos privados – pode não funcionar fora do grupo)
+  if (String(chat.id).startsWith("-100")) {
+    return `https://t.me/c/${String(chat.id).replace("-100", "")}/1`;
+  }
+
+  return "https://t.me/divulgadorlistabot";
+}
+
 // Testar se o bot ainda está no chat
 async function botAindaEstaNoChat(chatId) {
   try {
@@ -214,12 +229,14 @@ let processing = false;
 async function montarCicloEAtualizarFila() {
   try {
     // buscar todos os chats registrados
-    const [todos] = await db.query("SELECT * FROM chats");
-    if (!todos || todos.length === 0) {
-      console.log("Nenhum chat cadastrado para divulgação.");
-      return;
-    }
+const [todos] = await db.query("SELECT * FROM chats");
 
+for (const ch of todos) {
+  if (!ch.invite_link) {
+    const link = await getOrCreateInvite(ch.id);
+    ch.invite_link = link;
+  }
+}
     // remover chats mortos (bot não está lá) - faz limpeza inicial
     const vivos = [];
     for (const ch of todos) {
