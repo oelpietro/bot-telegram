@@ -38,12 +38,44 @@ async function botAindaEstaNoChat(chatId) {
 }
 
 // Gera link t.me para chat (username se existir, caso contrário t.me/c/<id>/1)
-function linkParaChat(g) {
-  if (g.username) return `https://t.me/${g.username}`;
-  const idLimpo = String(g.id).replace("-100", "");
-  return `https://t.me/c/${idLimpo}/1`;
-}
+async function getOrCreateInvite(chatId) {
+  // tentar buscar salvo
+  const [rows] = await db.query(
+    "SELECT invite_link FROM chats WHERE id = ?",
+    [chatId]
+  );
+  if (rows[0]?.invite_link) return rows[0].invite_link;
 
+  try {
+    // tentar exportar link permanente
+    const link = await bot.telegram.exportChatInviteLink(chatId);
+    if (link) {
+      await db.query(
+        "UPDATE chats SET invite_link = ? WHERE id = ?",
+        [link, chatId]
+      );
+      return link;
+    }
+  } catch {}
+
+  try {
+    // fallback: criar invite explícito
+    const invite = await bot.telegram.createChatInviteLink(chatId, {
+      member_limit: 0,
+      expire_date: 0
+    });
+
+    if (invite?.invite_link) {
+      await db.query(
+        "UPDATE chats SET invite_link = ? WHERE id = ?",
+        [invite.invite_link, chatId]
+      );
+      return invite.invite_link;
+    }
+  } catch {}
+
+  return null;
+}
 // ---------- START & comandos ----------
 bot.start(async (ctx) => {
   await ctx.replyWithMarkdown(
