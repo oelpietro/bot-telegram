@@ -194,30 +194,63 @@ bot.on("my_chat_member", async (ctx) => {
 
 // ---------- Meus Grupos / Meus Canais ----------
 bot.action("meus_grupos", async (ctx) => {
+  await ctx.answerCbQuery(); // 👈 PRIMEIRA LINHA
+
   try {
-    const [rows] = await db.query("SELECT * FROM chats WHERE dono = ? AND (tipo = 'supergroup' OR tipo = 'group')", [ctx.from.id]);
-    if (rows.length === 0) return ctx.answerCbQuery("Você não possui grupos cadastrados.");
-    const botoes = rows.map(g => [Markup.button.url(g.titulo, linkParaChat(g))]);
-    await ctx.reply("📁 *Seus Grupos:*", { parse_mode: "Markdown", ...Markup.inlineKeyboard(botoes) });
-    ctx.answerCbQuery();
+    const [rows] = await db.query(
+      "SELECT * FROM chats WHERE dono = ? AND (tipo = 'supergroup' OR tipo = 'group')",
+      [ctx.from.id]
+    );
+
+    if (rows.length === 0) {
+      return ctx.reply("📁 Você não possui grupos cadastrados.");
+    }
+
+    const botoes = rows.map(g => [
+      Markup.button.url(g.titulo || "Grupo", linkParaChat(g))
+    ]);
+
+    await ctx.reply(
+      "📁 *Seus Grupos:*",
+      { parse_mode: "Markdown", ...Markup.inlineKeyboard(botoes) }
+    );
+
   } catch (e) {
     console.log("Erro meus_grupos:", e);
-    ctx.answerCbQuery("Erro ao buscar seus grupos.");
+    await ctx.reply("❌ Erro ao buscar seus grupos.");
   }
 });
 
+
 bot.action("meus_canais", async (ctx) => {
+  // RESPONDE IMEDIATAMENTE (evita timeout)
+  await ctx.answerCbQuery();
+
   try {
-    const [rows] = await db.query("SELECT * FROM chats WHERE dono = ? AND tipo = 'channel'", [ctx.from.id]);
-    if (rows.length === 0) return ctx.answerCbQuery("Você não possui canais cadastrados.");
-    const botoes = rows.map(g => [Markup.button.url(g.titulo, linkParaChat(g))]);
-    await ctx.reply("📂 *Seus Canais:*", { parse_mode: "Markdown", ...Markup.inlineKeyboard(botoes) });
-    ctx.answerCbQuery();
+    const [rows] = await db.query(
+      "SELECT * FROM chats WHERE dono = ? AND tipo = 'channel'",
+      [ctx.from.id]
+    );
+
+    if (rows.length === 0) {
+      return ctx.reply("📂 Você não possui canais cadastrados.");
+    }
+
+    const botoes = rows.map(g => [
+      Markup.button.url(g.titulo || "Canal", linkParaChat(g))
+    ]);
+
+    await ctx.reply(
+      "📂 *Seus Canais:*",
+      { parse_mode: "Markdown", ...Markup.inlineKeyboard(botoes) }
+    );
+
   } catch (e) {
     console.log("Erro meus_canais:", e);
-    ctx.answerCbQuery("Erro ao buscar seus canais.");
+    await ctx.reply("❌ Erro ao buscar seus canais.");
   }
 });
+
 
 // ---------- MODO C1: Construção de listas e fila de envio ----------
 
