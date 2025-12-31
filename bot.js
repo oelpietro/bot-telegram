@@ -467,15 +467,6 @@ setInterval(async () => {
   }
 }, 1000);
 
-// Também acionamos uma montagem inicial ao iniciar
-(async () => {
-  try {
-    await montarCicloEAtualizarFila();
-  } catch (e) {
-    console.log("Erro montagem inicial:", e);
-  }
-})();
-
 // ---------- iniciar bot ----------
 (async () => {
   try {
