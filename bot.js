@@ -270,32 +270,6 @@ for (const ch of todos) {
     ch.invite_link = link;
   }
 }
-    // remover chats mortos (bot não está lá) - faz limpeza inicial
-  async function verificarChatsInativos(chats) {
-  let inativos = 0;
-
-  for (const ch of chats) {
-    try {
-      await bot.telegram.getChat(ch.id);
-    } catch (err) {
-      inativos++;
-      console.log(
-        "⚠️ Chat possivelmente inativo (não removido):",
-        ch.titulo || ch.id,
-        "| motivo:",
-        err?.code || err?.message
-      );
-    }
-  }
-
-  if (inativos > 0) {
-    console.log(`⚠️ Total de chats possivelmente inativos: ${inativos}`);
-  } else {
-    console.log("✅ Todos os chats responderam normalmente.");
-  }
-}
-
-
  
     // contagem por dono para aplicar limite 3 (donos com >3 são excluídos da participação)
     const contagem = {};
