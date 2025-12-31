@@ -1,4 +1,5 @@
 // bot.js - modo C1 (CICLO GLOBAL)
+require("dns").setDefaultResultOrder("ipv4first");
 require("dotenv").config();
 const { Telegraf, Markup } = require("telegraf");
 const mysql = require("mysql2/promise");
