@@ -237,7 +237,33 @@ for (const ch of todos) {
     ch.invite_link = link;
   }
 }
-   
+    // remover chats mortos (bot não está lá) - faz limpeza inicial
+  async function verificarChatsInativos(chats) {
+  let inativos = 0;
+
+  for (const ch of chats) {
+    try {
+      await bot.telegram.getChat(ch.id);
+    } catch (err) {
+      inativos++;
+      console.log(
+        "⚠️ Chat possivelmente inativo (não removido):",
+        ch.titulo || ch.id,
+        "| motivo:",
+        err?.code || err?.message
+      );
+    }
+  }
+
+  if (inativos > 0) {
+    console.log(`⚠️ Total de chats possivelmente inativos: ${inativos}`);
+  } else {
+    console.log("✅ Todos os chats responderam normalmente.");
+  }
+}
+
+
+ 
     // contagem por dono para aplicar limite 3 (donos com >3 são excluídos da participação)
     const contagem = {};
     vivos.forEach(g => { contagem[g.dono] = (contagem[g.dono] || 0) + 1; });
@@ -370,13 +396,67 @@ async function processarFila() {
 
 // Agendadores:
 // 1) A cada CYCLE_INTERVAL_MS monta um novo ciclo/popula a fila
-setInterval(async () => {
+async function montarCicloEAtualizarFila() {
   try {
-    await montarCicloEAtualizarFila();
-  } catch (e) {
-    console.log("Erro no agendador montarCiclo:", e);
+    console.log("🔄 Montando novo ciclo...");
+
+    // Buscar todos os chats cadastrados
+    const [todos] = await db.query("SELECT * FROM chats");
+
+    if (todos.length === 0) {
+      console.log("⚠️ Nenhum chat cadastrado.");
+      return;
+    }
+
+    // ===== VERIFICAÇÃO APENAS PARA LOG (NÃO REMOVE NADA) =====
+    let inativos = 0;
+
+    for (const ch of todos) {
+      try {
+        await bot.telegram.getChat(ch.id);
+      } catch (err) {
+        inativos++;
+        console.log(
+          "⚠️ Chat possivelmente inativo (não removido):",
+          ch.titulo || ch.id,
+          "| motivo:",
+          err?.code || err?.message
+        );
+      }
+    }
+
+    if (inativos > 0) {
+      console.log(`⚠️ Total de chats possivelmente inativos: ${inativos}`);
+    } else {
+      console.log("✅ Todos os chats responderam normalmente.");
+    }
+
+    // =========================================================
+
+    // Todos continuam no ciclo (NUNCA remove)
+    const vivos = todos;
+
+    // Embaralhar ordem (se você já usava isso)
+    for (let i = vivos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [vivos[i], vivos[j]] = [vivos[j], vivos[i]];
+    }
+
+    // Limpa fila atual
+    fila.length = 0;
+
+    // Monta fila global
+    for (const chat of vivos) {
+      fila.push(chat);
+    }
+
+    console.log(`📋 Ciclo montado com ${fila.length} chats.`);
+
+  } catch (err) {
+    console.log("❌ Erro ao montar ciclo:", err);
   }
-}, CYCLE_INTERVAL_MS);
+}
+
 
 // 2) Processador de fila roda constantemente (tenta processar a fila)
 setInterval(async () => {
@@ -397,6 +477,29 @@ setInterval(async () => {
 })();
 
 // ---------- iniciar bot ----------
-bot.launch().then(() => console.log("🤖 Bot iniciado (modo C1, ciclo a cada 1 min, 1.1s entre envios)")).catch(err => {
-  console.log("Erro ao iniciar bot:", err);
-});
+(async () => {
+  try {
+    // Inicia o bot PRIMEIRO
+    await bot.launch({
+      dropPendingUpdates: true
+    });
+
+    console.log("🤖 Bot iniciado com sucesso");
+
+    // Só depois de iniciar o bot, execute lógicas que usam a API
+    await montarCicloEAtualizarFila();
+
+    // Agenda os próximos ciclos
+    setInterval(async () => {
+      try {
+        await montarCicloEAtualizarFila();
+      } catch (err) {
+        console.error("Erro no ciclo:", err.message);
+      }
+    }, CYCLE_INTERVAL_MS);
+
+  } catch (err) {
+    console.error("❌ Erro ao iniciar bot:", err);
+    process.exit(1);
+  }
+})();
