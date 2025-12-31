@@ -237,23 +237,7 @@ for (const ch of todos) {
     ch.invite_link = link;
   }
 }
-    // remover chats mortos (bot não está lá) - faz limpeza inicial
-    const vivos = [];
-    for (const ch of todos) {
-      const ok = await botAindaEstaNoChat(ch.id);
-      if (!ok) {
-        await db.query("DELETE FROM chats WHERE id = ?", [ch.id]);
-        console.log("Removido chat morto:", ch.titulo || ch.id);
-      } else {
-        vivos.push(ch);
-      }
-    }
-
-    if (vivos.length === 0) {
-      console.log("Nenhum chat vivo após limpeza.");
-      return;
-    }
-
+ 
     // contagem por dono para aplicar limite 3 (donos com >3 são excluídos da participação)
     const contagem = {};
     vivos.forEach(g => { contagem[g.dono] = (contagem[g.dono] || 0) + 1; });
